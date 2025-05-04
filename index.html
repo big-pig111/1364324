@@ -8,6 +8,90 @@
 </head>
 
 <body translate="no">
+  <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96">
+        <h1 class="text-2xl font-bold mb-4 text-center">外星语转换器</h1>
+        <div class="mb-4">
+            <label for="inputText" class="block text-gray-700 text-sm font-bold mb-2">输入文本:</label>
+            <textarea id="inputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4"></textarea>
+        </div>
+        <button id="convertButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">转换为外星语</button>
+        <div class="mt-4">
+            <label for="outputText" class="block text-gray-700 text-sm font-bold mb-2">转换结果:</label>
+            <textarea id="outputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const convertButton = document.getElementById('convertButton');
+        const outputText = document.getElementById('outputText');
+
+        function shuffleWord(word) {
+            let wordArray = word.split('');
+            for (let i = wordArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [wordArray[i], wordArray[j]] = [wordArray[j], wordArray[i]];
+            }
+            return wordArray.join('');
+        }
+
+        function toAlienLanguage(text) {
+            // 符合海洋文化的字符映射
+            const charMapping = {
+                'a': 'Ω',
+                'e': '∞',
+                'i': '~',
+                'o': '⊕',
+                'u': '∿',
+                'b': 'ɓ',
+                'c': 'ƈ',
+                'd': 'ɗ',
+                'f': 'ɸ',
+                'g': 'ɠ',
+                'h': 'ħ',
+                'j': 'ʄ',
+                'k': 'ƙ',
+                'l': 'ɫ',
+                'm': 'ɱ',
+                'n': 'ɲ',
+                'p': 'ƥ',
+                'q': 'ʠ',
+                'r': 'ɾ',
+                's': 'ʂ',
+                't': 'ƭ',
+                'v': 'ʋ',
+                'w': 'ʍ',
+                'x': 'χ',
+                'y': 'ɣ',
+                'z': 'ʐ'
+            };
+            let result = "";
+            let words = text.split(' ');
+            for (let word of words) {
+                let newWord = "";
+                for (let char of word) {
+                    newWord += charMapping[char.toLowerCase()] || char;
+                }
+                // 一定概率打乱单词字母顺序
+                if (Math.random() > 0.5) {
+                    newWord = shuffleWord(newWord);
+                }
+                // 增加海洋文化的后缀
+                if (Math.random() > 0.3) {
+                    newWord += '~';
+                }
+                result += newWord + " ";
+            }
+            return result.trim();
+        }
+
+        convertButton.addEventListener('click', function () {
+            const input = inputText.value;
+            const alienText = toAlienLanguage(input);
+            outputText.value = alienText;
+        });
+    </script>
   <div class="night">
     <div class="shooting_star"></div>
     <div class="shooting_star"></div>
