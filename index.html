@@ -7,25 +7,66 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
-<body translate="no">
-  <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 class="text-2xl font-bold mb-4 text-center">外星语转换器</h1>
-        <div class="mb-4">
-            <label for="inputText" class="block text-gray-700 text-sm font-bold mb-2">输入文本:</label>
-            <textarea id="inputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4"></textarea>
-        </div>
-        <button id="convertButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">转换为外星语</button>
-        <div class="mt-4">
-            <label for="outputText" class="block text-gray-700 text-sm font-bold mb-2">转换结果:</label>
-            <textarea id="outputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4" readonly></textarea>
+
+     <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center">
+    <div class="flex justify-center items-center h-full">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96">
+            <h1 class="text-2xl font-bold mb-4 text-center">外星语转换器</h1>
+            <div class="mb-4">
+                <label for="inputText" class="block text-gray-700 text-sm font-bold mb-2">输入文本:</label>
+                <textarea id="inputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4"></textarea>
+            </div>
+            <div class="flex space-x-4 mb-4">
+                <button id="toAlienButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">转换为外星语</button>
+                <button id="fromAlienButton" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">从外星语转换回来</button>
+            </div>
+            <div class="mt-4">
+                <label for="outputText" class="block text-gray-700 text-sm font-bold mb-2">转换结果:</label>
+                <textarea id="outputText" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="4" readonly></textarea>
+            </div>
         </div>
     </div>
 
     <script>
         const inputText = document.getElementById('inputText');
-        const convertButton = document.getElementById('convertButton');
+        const toAlienButton = document.getElementById('toAlienButton');
+        const fromAlienButton = document.getElementById('fromAlienButton');
         const outputText = document.getElementById('outputText');
+        const translationMap = new Map();
+
+        const charMapping = {
+            'a': 'Ω',
+            'e': '∞',
+            'i': '~',
+            'o': '⊕',
+            'u': '∿',
+            'b': 'ɓ',
+            'c': 'ƈ',
+            'd': 'ɗ',
+            'f': 'ɸ',
+            'g': 'ɠ',
+            'h': 'ħ',
+            'j': 'ʄ',
+            'k': 'ƙ',
+            'l': 'ɫ',
+            'm': 'ɱ',
+            'n': 'ɲ',
+            'p': 'ƥ',
+            'q': 'ʠ',
+            'r': 'ɾ',
+            's': 'ʂ',
+            't': 'ƭ',
+            'v': 'ʋ',
+            'w': 'ʍ',
+            'x': 'χ',
+            'y': 'ɣ',
+            'z': 'ʐ'
+        };
+
+        const reverseCharMapping = {};
+        for (const [key, value] of Object.entries(charMapping)) {
+            reverseCharMapping[value] = key;
+        }
 
         function shuffleWord(word) {
             let wordArray = word.split('');
@@ -37,59 +78,74 @@
         }
 
         function toAlienLanguage(text) {
-            // 符合海洋文化的字符映射
-            const charMapping = {
-                'a': 'Ω',
-                'e': '∞',
-                'i': '~',
-                'o': '⊕',
-                'u': '∿',
-                'b': 'ɓ',
-                'c': 'ƈ',
-                'd': 'ɗ',
-                'f': 'ɸ',
-                'g': 'ɠ',
-                'h': 'ħ',
-                'j': 'ʄ',
-                'k': 'ƙ',
-                'l': 'ɫ',
-                'm': 'ɱ',
-                'n': 'ɲ',
-                'p': 'ƥ',
-                'q': 'ʠ',
-                'r': 'ɾ',
-                's': 'ʂ',
-                't': 'ƭ',
-                'v': 'ʋ',
-                'w': 'ʍ',
-                'x': 'χ',
-                'y': 'ɣ',
-                'z': 'ʐ'
-            };
             let result = "";
             let words = text.split(' ');
+            let shuffledInfo = [];
             for (let word of words) {
                 let newWord = "";
                 for (let char of word) {
                     newWord += charMapping[char.toLowerCase()] || char;
                 }
-                // 一定概率打乱单词字母顺序
+                let isShuffled = false;
                 if (Math.random() > 0.5) {
                     newWord = shuffleWord(newWord);
+                    isShuffled = true;
                 }
-                // 增加海洋文化的后缀
                 if (Math.random() > 0.3) {
                     newWord += '~';
+                }
+                shuffledInfo.push({ original: word, shuffled: isShuffled });
+                result += newWord + " ";
+            }
+            return { text: result.trim(), shuffledInfo };
+        }
+
+        function fromAlienLanguage(text, shuffledInfo) {
+            let result = "";
+            let words = text.split(' ');
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i].replace('~', '');
+                let newWord = "";
+                for (let char of word) {
+                    newWord += reverseCharMapping[char] || char;
+                }
+                if (shuffledInfo[i].shuffled) {
+                    const originalWord = shuffledInfo[i].original;
+                    newWord = originalWord;
                 }
                 result += newWord + " ";
             }
             return result.trim();
         }
 
-        convertButton.addEventListener('click', function () {
+        toAlienButton.addEventListener('click', function () {
             const input = inputText.value;
-            const alienText = toAlienLanguage(input);
-            outputText.value = alienText;
+            const sentences = input.split(/[.!?]/).filter(sentence => sentence.trim()!== '');
+            let translatedText = '';
+            let allShuffledInfo = [];
+
+            sentences.forEach(sentence => {
+                if (translationMap.has(sentence)) {
+                    const { text, shuffledInfo } = translationMap.get(sentence);
+                    translatedText += text + ' ';
+                    allShuffledInfo.push(...shuffledInfo);
+                } else {
+                    const { text, shuffledInfo } = toAlienLanguage(sentence);
+                    translationMap.set(sentence, { text, shuffledInfo });
+                    translatedText += text + ' ';
+                    allShuffledInfo.push(...shuffledInfo);
+                }
+            });
+
+            outputText.value = translatedText.trim();
+            outputText.dataset.shuffledInfo = JSON.stringify(allShuffledInfo);
+        });
+
+        fromAlienButton.addEventListener('click', function () {
+            const input = inputText.value;
+            const shuffledInfo = JSON.parse(outputText.dataset.shuffledInfo || '[]');
+            const translatedText = fromAlienLanguage(input, shuffledInfo);
+            outputText.value = translatedText;
         });
     </script>
   <div class="night">
